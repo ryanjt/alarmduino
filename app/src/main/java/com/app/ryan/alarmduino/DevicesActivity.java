@@ -25,6 +25,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -48,6 +54,8 @@ public class DevicesActivity extends AppCompatActivity {
     private ListView mDevicesListView;
     private CheckBox mLED1;
     private Button testButton;
+    private String fileName = "alarms.json";
+    private String alarms = " ";
 
     private final String TAG = DevicesActivity.class.getSimpleName();
     private Handler mHandler; // Our main handler that will receive callback notifications
@@ -66,6 +74,8 @@ public class DevicesActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        final File f = new File(this.getFilesDir().getPath() + "/" + fileName);
+
         setContentView(R.layout.activity_devices);
 
         mBluetoothStatus = (TextView)findViewById(R.id.bluetoothStatus);
@@ -109,7 +119,7 @@ public class DevicesActivity extends AppCompatActivity {
                 }
             }
         };
-
+        alarms = getData(this.getBaseContext());
         if (mBTArrayAdapter == null) {
             // Device does not support Bluetooth
             mBluetoothStatus.setText("Status: Bluetooth not found");
@@ -120,8 +130,23 @@ public class DevicesActivity extends AppCompatActivity {
             testButton.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View v){
-                    if(mConnectedThread != null) //First check to make sure thread created
-                        mConnectedThread.write("HI");
+
+                    if(f.exists() && !f.isDirectory()) {
+                        try {
+                            final JSONArray jarray = new JSONArray(alarms);
+                            for(int i = 0; i < jarray.length(); i++) {
+                                final JSONObject item = jarray.getJSONObject(i);
+                                final int i2 = i;
+                                if(mConnectedThread != null)
+                                    mConnectedThread.write( item.get("alarmHours") + ":" + item.get("alarmMinutes").toString());
+
+                            }
+                        }catch(JSONException e){
+                            e.printStackTrace();
+
+                        }
+                    }
+
                 }
             });
 
@@ -361,5 +386,24 @@ public class DevicesActivity extends AppCompatActivity {
             } catch (IOException e) { }
         }
 
+
+    }
+
+    public String getData(Context context) {
+
+        try {
+            File f = new File(context.getFilesDir().getPath() + "/" + this.fileName);
+
+            //check whether file exists
+            FileInputStream is = new FileInputStream(f);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            return new String(buffer);
+        } catch (IOException e) {
+            Log.e("TAG", "Error in Reading: " + e.getLocalizedMessage());
+            return null;
+        }
     }
 }

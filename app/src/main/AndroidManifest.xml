@@ -31,6 +31,7 @@
         </activity>
         <activity android:name=".AlarmActivity" />
         <activity android:name=".DevicesActivity"></activity>
+        <activity android:name=".ActiveAlarmActivity"></activity>
     </application>
 
 </manifest>

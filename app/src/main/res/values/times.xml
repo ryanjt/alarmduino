@@ -89,11 +89,9 @@
         <item>59</item>
     </string-array>
     <string-array name="alarmmethod">
-        <item>Shake 1 times</item>
-        <item>Shake 5 times</item>
-        <item>Shake 10 times</item>
-        <item>Place flat</item>
+        <item>Shake</item>
         <item>Shout</item>
+        <item>Manual Button</item>
     </string-array>
     <string-array name="tone">
         <item>Shake 1 times</item>
